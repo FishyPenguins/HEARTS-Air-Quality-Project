@@ -1,0 +1,174 @@
+HEARTS PROJECT - IMPLEMENTATION SUMMARY
+========================================
+Generated: September 16, 2026
+
+
+OVERVIEW
+--------
+A SwiftUI iOS app that gathers real-time environmental health factors (the
+"exposome") for the user's current location and displays them on a live map
+with a pull-up stats sheet.
+
+
+ARCHITECTURE
+------------
+The app is organized into four layers:
+  1. Models       - Data types and enums
+  2. Services     - API sources and orchestration
+  3. Location     - GPS and reverse geocoding
+  4. UI / Views   - SwiftUI screens and components
+
+
+DATA LAYER
+----------
+
+Models (ExposomeFactor.swift)
+  - ExposomeFactor enum with 9 factors:
+      Temperature, Humidity, PM2.5, Air Quality Index, Heat Index,
+      Ambient Noise, Light Pollution, Green Space, Pollen
+  - Each factor carries: color, SF Symbol name, unit string,
+    short name, full description, and data source name
+  - ExposomeReading struct: numeric value, display string,
+    timestamp, and staleness flag (stale after 1 hour)
+  - ExposomeStatus enum: .loading / .available / .notAvailable / .failed
+
+Data Sources (Services/Sources/)
+
+  NOAAWeatherSource.swift
+    Class:  NOAAWeatherSource
+    API:    Open-Meteo forecast API (free, no API key required)
+    URL:    https://api.open-meteo.com/v1/forecast
+    Data:   Temperature (F) and Relative Humidity (%)
+    Cache:  30-minute in-memory cache keyed by rounded coordinates
+    Status: LIVE
+
+  HeatIndexSource.swift
+    Class:  HeatIndexSource
+    API:    Derived - no network call
+    Logic:  NOAA Rothfusz regression formula using temp + humidity
+            from NOAAWeatherSource. Includes low-humidity and
+            high-humidity correction adjustments.
+    Status: LIVE (works whenever Temperature + Humidity load)
+
+  AirNowSource.swift
+    Class:  AirNowSource
+    API:    EPA AirNow observation API
+    URL:    https://www.airnowapi.org/aq/observation/latLong/current/
+    Key:    API key embedded in source (can override with
+            AIRNOW_API_KEY environment variable in scheme)
+    Data:   PM2.5 (µg/m³) and Air Quality Index with category label
+    Cache:  60-minute in-memory cache
+    Status: LIVE
+
+  StubSources.swift - PollenSource
+    Class:  PollenSource
+    API:    Open-Meteo air quality API (free, no API key required)
+    URL:    https://air-quality-api.open-meteo.com/v1/air-quality
+    Data:   Grass pollen concentration (grains/m³), CAMS global model
+    Status: LIVE (best coverage in Europe, available globally)
+
+  StubSources.swift - AmbientNoiseSource
+    Status: NOT AVAILABLE - no free real-time public API exists
+
+  StubSources.swift - LightPollutionSource
+    Status: NOT AVAILABLE - no free real-time public API exists
+
+  StubSources.swift - GreenSpaceSource
+    Status: NOT AVAILABLE - no free real-time public API exists
+
+Service Orchestration (ExposomeService.swift)
+  - @Observable class, runs on @MainActor
+  - Fires all 9 sources in parallel using Swift TaskGroup
+  - Skips re-fetching if location hasn't changed (coordinate cache key)
+  - refresh()       - skips if same location was already fetched
+  - forceRefresh()  - bypasses cache, re-fetches everything
+
+
+LOCATION (LocationManager.swift)
+---------------------------------
+  - @Observable wrapper around CLLocationManager
+  - Requests "when in use" authorization on first launch
+  - Fires a single location fix (requestLocation)
+  - Reverse-geocodes coordinates to a city name using
+    MKReverseGeocodingRequest from MapKit
+  - locationLabel property: city name -> "lat, lon" -> "Locating..."
+
+  IMPORTANT: NSLocationWhenInUseUsageDescription must be added to the
+  target's Info tab in Xcode for the permission prompt to appear on a
+  real device. Without it, iOS silently denies the request.
+
+
+UI LAYER
+--------
+
+ExposomeDashboardView.swift (main screen)
+  - Full-screen Map view (MapKit SwiftUI) with UserAnnotation()
+    showing the live blue location dot
+  - Camera position: MapCameraPosition.userLocation tracks the user
+  - Top bar overlay: glass-material (thickMaterial) rounded pill
+      - HEARTS logo with heart icon
+      - Live city/location label
+      - Refresh button (disabled until location resolves)
+  - Bottom button: blue-to-purple gradient capsule
+      - "View Area Stats" label
+      - Live subtitle: "X of 9 factors loaded"
+      - Taps open the stats sheet
+  - Stats sheet (StatsSheetView, defined in same file):
+      - Slides up as a half or full sheet (presentationDetents)
+      - Drag indicator visible
+      - Gradient header banner (teal -> blue -> purple) with
+        location label in toolbar
+      - Scrollable list of all 9 FactorCardView cards
+      - Refresh and Close toolbar buttons
+
+FactorCardView.swift (reusable card component)
+  - Gradient icon square using each factor's unique color
+  - Colored border (gradient stroke) and drop shadow per factor
+  - Factor short name as subtitle, bold large value as headline
+  - Right side: timestamp age string ("5m ago", "2h ago")
+  - "STALE" pill badge when data is over 1 hour old
+  - Handles all 4 status states:
+      .loading      - spinner
+      .available    - value + age
+      .notAvailable - "Not available" text
+      .failed       - last known value in orange + error icon
+
+
+FACTOR STATUS SUMMARY
+----------------------
+  Temperature       LIVE    (Open-Meteo)
+  Humidity          LIVE    (Open-Meteo)
+  Heat Index        LIVE    (Derived from temp + humidity)
+  PM2.5             LIVE    (AirNow)
+  Air Quality Index LIVE    (AirNow)
+  Pollen            LIVE    (Open-Meteo air quality)
+  Ambient Noise     ---     No free public API
+  Light Pollution   ---     No free public API
+  Green Space       ---     No free public API
+
+
+KNOWN GAPS / FUTURE WORK
+-------------------------
+  1. Ambient Noise, Light Pollution, Green Space need commercial APIs
+     or alternative data strategies to become functional.
+  2. NSLocationWhenInUseUsageDescription must be added manually in
+     Xcode (Target > Info tab > Custom iOS Target Properties).
+  3. Pollen coverage is strongest in Europe; US coverage depends on
+     the CAMS global model availability for the given location.
+  4. AirNow API key is currently hard-coded; should be moved to a
+     secrets manager or environment variable for production.
+
+
+FILES
+-----
+  HEARTS Project/Models/ExposomeFactor.swift
+  HEARTS Project/Services/ExposomeService.swift
+  HEARTS Project/Services/ExposomeSource.swift
+  HEARTS Project/Services/Sources/NOAAWeatherSource.swift
+  HEARTS Project/Services/Sources/HeatIndexSource.swift
+  HEARTS Project/Services/Sources/AirNowSource.swift
+  HEARTS Project/Services/Sources/StubSources.swift
+  HEARTS Project/LocationManager.swift
+  HEARTS Project/Views/ExposomeDashboardView.swift
+  HEARTS Project/Views/FactorCardView.swift
+  HEARTS Project/HEARTS_APP.swift

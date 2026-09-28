@@ -1,6 +1,5 @@
 //
-//  HEARTS_ProjectApp.swift
-//  HEARTS Project
+//  HEARTS_APP.swift
 //
 //  Created by Abner Garza on 9/15/26.
 //
@@ -8,10 +7,10 @@
 import SwiftUI
 
 @main
-struct HEARTS_ProjectApp: App {
+struct HEARTSApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ExposomeDashboardView()
         }
     }
 }
