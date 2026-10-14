@@ -1,0 +1,329 @@
+[
+  {
+    "id": "pm25-hf-metaanalysis",
+    "title": "Short-term air pollution and heart failure hospitalization (meta-analysis)",
+    "source": "Chen et al. 2023, Frontiers in Public Health",
+    "url": "https://www.frontiersin.org/journals/public-health/articles/10.3389/fpubh.2022.948765/full",
+    "tags": [
+      "pm2.5",
+      "pollution",
+      "hospitalization",
+      "risk",
+      "heart failure",
+      "research"
+    ],
+    "text": "A meta-analysis of 51 studies covering about 7.5 million people looked at short-term air pollution and heart failure hospitalization or death. Every 10 µg/m³ increase in PM2.5 was linked to about 1.3% more heart failure hospitalizations or deaths. PM10 showed about the same (+1.3% per 10 µg/m³). Gas pollutants were also linked: nitrogen dioxide about +2.1% and sulfur dioxide about +2.2% per 10 ppb, carbon monoxide about +3.5% per 1 ppm, and ozone the weakest. Studies used exposure windows of up to 7 days. The authors note large differences between studies and some publication bias, so the exact size of the effect is uncertain, but the direction is consistent."
+  },
+  {
+    "id": "pm25-lag-window",
+    "title": "How fast air pollution affects heart failure (lag 0 to 1 day)",
+    "source": "OpenEvidence summary citing Jia et al. 2023 (Environmental Health Perspectives), Zhang et al. 2023, Sun et al. 2024 (BMJ)",
+    "url": "https://www.openevidence.com/ask/dc9c56fe-10a0-4fab-a5e6-83dcaa8d1c1d",
+    "tags": [
+      "pm2.5",
+      "lag",
+      "timing",
+      "same day",
+      "risk",
+      "research",
+      "older adults"
+    ],
+    "text": "Across large reviews (one pooled 100 studies), each 10 µg/m³ increase in PM2.5 is linked to about 1.5% to 2% more heart failure hospitalizations. The effect shows up fast: the exposure window studies use most often is the same day plus the day before (lag 0 to 1). Effects show up even when PM2.5 is below World Health Organization limits, and most of the evidence comes from adults 65 and older. For HEARTS this means a bad air day today, or yesterday, is the window that matters most for heart failure risk."
+  },
+  {
+    "id": "temperature-hf-sweden",
+    "title": "Heat and cold and heart failure hospitalization",
+    "source": "Ni et al., JACC, presented at ESC Congress 2026 (ACC press release)",
+    "url": "https://www.acc.org/About-ACC/Press-Releases/2026/08/28/14/12/Temperature-Extremes-Can-Increase-Risk-of-Heart-Failure-Hospitalization",
+    "tags": [
+      "heat",
+      "cold",
+      "temperature",
+      "lag",
+      "hospitalization",
+      "research",
+      "weather"
+    ],
+    "text": "A Swedish study of 482,000 heart failure hospitalizations (2006 to 2021) found that higher temperatures raised hospitalization risk right away, over the same day through 3 days later (lag 0 to 3). Cold worked on a delay: cold spells and low temperatures raised risk 2 to 6 days later, most clearly 3 to 5 days later. The authors say this calls for quick action during heat and continued watching for several days after a cold snap."
+  },
+  {
+    "id": "aqi-categories",
+    "title": "What the Air Quality Index (AQI) numbers mean",
+    "source": "U.S. EPA / AirNow Air Quality Guide for Particle Pollution",
+    "url": "https://www.airnow.gov/aqi/aqi-basics/",
+    "tags": [
+      "aqi",
+      "categories",
+      "good",
+      "moderate",
+      "unhealthy",
+      "hazardous",
+      "meaning"
+    ],
+    "text": "The AQI runs from 0 to 500. 0 to 50 is Good (green). 51 to 100 is Moderate (yellow): unusually sensitive people, like people with heart or lung disease, may be affected. 101 to 150 is Unhealthy for Sensitive Groups (orange): people with heart or lung disease, older adults, children, teens, pregnant people and outdoor workers may be affected. 151 to 200 is Unhealthy (red): everyone may start to be affected. 201 to 300 is Very Unhealthy (purple): health risk goes up for everyone. 301 and up is Hazardous (maroon): everyone is likely to be affected. People with heart failure count as a sensitive group."
+  },
+  {
+    "id": "aqi-actions-sensitive",
+    "title": "What people with heart disease should do at each AQI level",
+    "source": "U.S. EPA Air Quality Guide for Particle Pollution (as adapted by Stony Brook University EH&S)",
+    "url": "https://stonybrook.edu/ehs/air-quality.html",
+    "tags": [
+      "aqi",
+      "actions",
+      "exercise",
+      "outdoor",
+      "activity",
+      "what to do",
+      "sensitive",
+      "advice"
+    ],
+    "text": "Moderate (51 to 100): people with heart disease should think about making outdoor activity shorter and less intense, and watch for coughing or shortness of breath as a sign to slow down. Unhealthy for Sensitive Groups (101 to 150): make outdoor activity shorter and less intense, take more breaks, and watch for symptoms. Unhealthy (151 to 200): avoid long or intense outdoor activity, and move it indoors or reschedule. Very Unhealthy (201 to 300): avoid all physical activity outdoors and move activities indoors. Hazardous (301+): stay indoors and keep activity levels low. For people with heart disease, palpitations, shortness of breath, or unusual fatigue on a bad air day can be a sign of a serious problem, so contact a health care provider."
+  },
+  {
+    "id": "aha-personal-protection",
+    "title": "AHA advice on protecting yourself from particle pollution",
+    "source": "American Heart Association Scientific Statement: Personal-Level Protective Actions Against Particulate Matter Air Pollution Exposure (Rajagopalan et al. 2020, Circulation)",
+    "url": "https://professional.heart.org/en/science-news/personal-level-protective-actions-against-particulate-matter-air-pollution-exposure",
+    "tags": [
+      "air purifier",
+      "air cleaner",
+      "hepa",
+      "indoor",
+      "mask",
+      "n95",
+      "protection",
+      "medication",
+      "advice",
+      "what to do"
+    ],
+    "text": "The American Heart Association says PM2.5 is a cause of cardiovascular disease. It works by causing inflammation and stress in the lungs that spreads into the blood and other organs. Portable air cleaners can cut indoor PM2.5 by up to about 50% to 60%, are fairly cheap, and may have a good benefit for the cost. There is not enough evidence to recommend for or against simple face masks for PM2.5. No over-the-counter or prescription medicine is recommended to protect against air pollution. Protective steps should be practical, safe, low cost, and matched to how at risk and how exposed a person is."
+  },
+  {
+    "id": "aha-exercise-pollution",
+    "title": "Should I stop exercising because of pollution?",
+    "source": "American Heart Association Scientific Statement (Rajagopalan et al. 2020, Circulation)",
+    "url": "https://professional.heart.org/en/science-news/personal-level-protective-actions-against-particulate-matter-air-pollution-exposure",
+    "tags": [
+      "exercise",
+      "activity",
+      "walking",
+      "outdoor",
+      "pollution",
+      "benefit",
+      "go outside"
+    ],
+    "text": "Long-term regular physical activity is good for heart health, and those benefits still hold even in places with high outdoor air pollution. So the goal is not to stop being active. On bad air days, the EPA guidance is to make outdoor activity shorter and less intense, or move it indoors. On good air days, getting outside and moving is a good idea, especially after several days spent indoors."
+  },
+  {
+    "id": "hf-warning-signs",
+    "title": "Warning signs of heart failure getting worse",
+    "source": "American Heart Association: Warning Signs of Heart Failure",
+    "url": "https://www.heart.org/en/health-topics/heart-failure/warning-signs-of-heart-failure",
+    "tags": [
+      "symptoms",
+      "warning signs",
+      "shortness of breath",
+      "swelling",
+      "weight",
+      "cough",
+      "fatigue",
+      "when to call"
+    ],
+    "text": "Signs that heart failure may be getting worse include: shortness of breath (during activity, at rest, or suddenly at night), a cough or wheezing that won't go away (sometimes with white or pink mucus), swelling in the feet, ankles, legs or belly, feeling very tired, loss of appetite or nausea, confusion or trouble thinking, a racing or pounding heartbeat, and sudden weight gain or loss. Report sudden changes to your health care team. Ask your care team how much fluid you should drink each day and what weight change should make you call them."
+  },
+  {
+    "id": "emergency",
+    "title": "When it is an emergency",
+    "source": "HEARTS safety rule (standard emergency guidance)",
+    "url": "",
+    "tags": [
+      "emergency",
+      "911",
+      "chest pain",
+      "can't breathe",
+      "fainting",
+      "urgent"
+    ],
+    "text": "Call 911 right away for chest pain or pressure, severe shortness of breath or trouble breathing at rest, fainting, sudden confusion, or coughing up pink foamy mucus. HEARTS cannot handle emergencies and does not replace your doctor or care team."
+  },
+  {
+    "id": "heat-hf-medications",
+    "title": "Why heat is harder on people with heart failure",
+    "source": "Houston Methodist: Heart problems and medications that make you more vulnerable to heat",
+    "url": "https://www.houstonmethodist.org/blog/articles/2023/jul/5-heart-problems-medications-that-can-make-you-more-vulnerable-to-heat/",
+    "tags": [
+      "heat",
+      "hot",
+      "diuretic",
+      "water pill",
+      "medication",
+      "dehydration",
+      "fluids",
+      "blood pressure"
+    ],
+    "text": "Heat makes the heart work harder because the body pushes more blood to the skin to cool down. People with heart failure are more likely to get dehydrated, and diuretics (water pills) raise that risk by removing fluid. Blood pressure medicines plus dehydration can make blood pressure drop too low. But people with heart failure often have a fluid limit, and drinking too much can also strain the heart, so the right amount of fluid on a hot day is a question for your doctor. Be extra careful once it gets to about 90°F. Never stop or change heart medicines on your own; your doctor may adjust doses for hot weather."
+  },
+  {
+    "id": "heat-safety",
+    "title": "Staying safe in hot weather",
+    "source": "American Heart Association: 5 ways to keep your heart safe in extreme heat",
+    "url": "https://easternstates.heart.org/2021/08/13/5-ways-to-keep-your-heart-safe-in-extreme-heat/",
+    "tags": [
+      "heat",
+      "hot",
+      "heat index",
+      "heat exhaustion",
+      "heat stroke",
+      "summer",
+      "what to do"
+    ],
+    "text": "In extreme heat: stay out of the sun from about midday to mid-afternoon, wear light loose clothing and a hat, take breaks in shade or air conditioning, skip alcohol and caffeine, and keep taking prescribed medicines. Signs of heat exhaustion: headache, heavy sweating, cool clammy skin, dizziness or fainting, weak fast pulse, cramps, nausea. If that happens, get somewhere cool, stop activity and cool down. Signs of heat stroke: hot dry skin with no sweating, confusion, high fever, strong fast pulse. Heat stroke is an emergency: call 911."
+  },
+  {
+    "id": "heat-index",
+    "title": "What the heat index means",
+    "source": "NOAA National Weather Service heat index (HEARTS computes it with the Rothfusz formula)",
+    "url": "https://www.weather.gov/safety/heat-index",
+    "tags": [
+      "heat index",
+      "feels like",
+      "humidity",
+      "temperature",
+      "meaning"
+    ],
+    "text": "The heat index is what the temperature feels like to your body when humidity is added in. Humid air makes it harder for sweat to cool you, so 90°F with high humidity can feel over 100°F. HEARTS calculates the heat index from the live temperature and humidity at your location. A higher heat index means more strain on the heart."
+  },
+  {
+    "id": "cold-delay",
+    "title": "Cold weather and heart failure",
+    "source": "Ni et al., JACC, ESC Congress 2026 (ACC press release)",
+    "url": "https://www.acc.org/About-ACC/Press-Releases/2026/08/28/14/12/Temperature-Extremes-Can-Increase-Risk-of-Heart-Failure-Hospitalization",
+    "tags": [
+      "cold",
+      "winter",
+      "temperature",
+      "lag",
+      "delay"
+    ],
+    "text": "Cold raises heart failure hospitalization risk on a delay, mostly 3 to 5 days after a cold spell, not on the cold day itself. So after a cold snap it's worth paying attention to symptoms like weight gain, swelling, and shortness of breath for the rest of the week, even once it warms up."
+  },
+  {
+    "id": "pm25-explained",
+    "title": "What PM2.5 is",
+    "source": "American Heart Association Scientific Statement (Rajagopalan et al. 2020); U.S. EPA",
+    "url": "https://professional.heart.org/en/science-news/personal-level-protective-actions-against-particulate-matter-air-pollution-exposure",
+    "tags": [
+      "pm2.5",
+      "particles",
+      "what is",
+      "smoke",
+      "wildfire",
+      "meaning"
+    ],
+    "text": "PM2.5 is tiny particles in the air, 2.5 micrometers across or smaller, about 30 times thinner than a hair. They come from car exhaust, power plants, burning wood, and wildfire smoke. They are small enough to get deep into the lungs, and they cause inflammation that reaches the blood and heart. PM2.5 is the main pollutant behind most bad AQI days, including wildfire smoke days."
+  },
+  {
+    "id": "hf-behavior-gap",
+    "title": "Do heart failure patients change what they do on bad air days?",
+    "source": "OpenEvidence summary citing Bonanni and Newman 2024 (Circulation Research) and the AHA 2020 statement",
+    "url": "https://www.openevidence.com/ask/6687e909-7488-413d-94ea-9d6bc03ac470",
+    "tags": [
+      "behavior",
+      "alerts",
+      "research",
+      "doctors",
+      "awareness",
+      "hearts project"
+    ],
+    "text": "There is very little data on whether heart failure patients change their behavior on bad air days. What exists suggests they mostly don't: heart patients are not more aware of air quality alerts than anyone else, and only about 16% of doctors talk to their patients about air pollution. Guidelines say to cut back on bad days, but nobody has measured whether patients actually do. That is one of the gaps the HEARTS project wants to fill."
+  },
+  {
+    "id": "activity-pollution-public",
+    "title": "Do people exercise less on polluted days?",
+    "source": "Yang et al. 2024, JMIR mHealth and uHealth",
+    "url": "https://doaj.org/article/947fd3be32cb4850b62e50115c45c629",
+    "tags": [
+      "behavior",
+      "running",
+      "exercise",
+      "research",
+      "activity"
+    ],
+    "text": "In a study of 16,379 people in 83 cities in China (the general public, not heart failure patients), people ran about 7.5% less on high pollution days."
+  },
+  {
+    "id": "hearts-app-overview",
+    "title": "What HEARTS is and what the app tracks",
+    "source": "HEARTS project (Quinnipiac CSC491 capstone with Yale advisors)",
+    "url": "https://github.com/FishyPenguins/HEARTS-Air-Quality-Project",
+    "tags": [
+      "hearts",
+      "app",
+      "about",
+      "what is",
+      "factors",
+      "data sources",
+      "exposome"
+    ],
+    "text": "HEARTS stands for Health Exposome Advisory Response Technology System. It is an app for people with heart failure that looks at the environment around you (your exposome) and gives guidance. Live factors: temperature and humidity (Open-Meteo), heat index (calculated), PM2.5 and Air Quality Index (EPA AirNow, within 25 miles), and pollen (Open-Meteo, best coverage in Europe). Noise, light pollution and green space are not available yet because there is no free live data source. HEARTS is a student research prototype, not a medical device."
+  },
+  {
+    "id": "hearts-risk-model",
+    "title": "How the HEARTS risk model works",
+    "source": "HEARTS project notes (Oct 2026)",
+    "url": "https://github.com/FishyPenguins/HEARTS-Air-Quality-Project",
+    "tags": [
+      "risk",
+      "model",
+      "score",
+      "machine learning",
+      "how it works",
+      "hearts",
+      "prediction"
+    ],
+    "text": "HEARTS uses a regular machine learning model (logistic regression right now) to estimate hospitalization risk from patient information and air exposure. So far it has been trained only on fake practice patients, not real patients, so its numbers are not real predictions yet. The plan is to use the air from the same day and the day before, since that is what most studies use. The AI chat assistant is not the risk model: it takes the risk information and live air data and explains them in plain language."
+  },
+  {
+    "id": "data-sources-history",
+    "title": "Where historical air data comes from",
+    "source": "U.S. EPA AirData pre-generated daily files",
+    "url": "https://aqs.epa.gov/aqsweb/airdata/download_files.html",
+    "tags": [
+      "data",
+      "history",
+      "aqi",
+      "county",
+      "epa",
+      "airnow",
+      "research"
+    ],
+    "text": "AirNow, which HEARTS uses for live air quality, only gives current readings, not history. The EPA AirData site has daily AQI history by county going back to 1989, but not by zip code."
+  },
+  {
+    "id": "pollen-hf",
+    "title": "Pollen and heart failure",
+    "source": "HEARTS project notes",
+    "url": "https://github.com/FishyPenguins/HEARTS-Air-Quality-Project",
+    "tags": [
+      "pollen",
+      "allergy",
+      "allergies"
+    ],
+    "text": "HEARTS shows grass pollen from the Open-Meteo air quality model. The HEARTS team has not found strong evidence linking pollen directly to heart failure hospitalization, so the app shows pollen for awareness. Allergy symptoms like congestion can still make breathing feel harder. Some cold and allergy medicines are not a good fit for people with heart failure, so ask a pharmacist or doctor before taking any."
+  },
+  {
+    "id": "wildfire-smoke",
+    "title": "Wildfire smoke days",
+    "source": "U.S. EPA Air Quality Guide; AHA 2020 Scientific Statement",
+    "url": "https://www.airnow.gov/aqi/aqi-basics/",
+    "tags": [
+      "wildfire",
+      "smoke",
+      "indoors",
+      "windows",
+      "air purifier",
+      "what to do"
+    ],
+    "text": "Wildfire smoke is mostly PM2.5 and can push the AQI into the unhealthy range fast. On smoke days, people with heart failure should stay indoors with windows and doors closed, run a portable air cleaner if they have one (these can cut indoor PM2.5 by about half), avoid outdoor exercise, and watch for warning signs like shortness of breath, palpitations, or unusual tiredness."
+  }
+]
