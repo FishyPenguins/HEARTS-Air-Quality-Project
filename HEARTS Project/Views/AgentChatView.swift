@@ -149,6 +149,7 @@ struct AgentChatView: View {
     private var inputBar: some View {
         HStack(alignment: .bottom, spacing: 10) {
             TextField("Ask about air, heat, or your heart…", text: $draft, axis: .vertical)
+                .font(.body)
                 .lineLimit(1...4)
                 .focused($inputFocused)
                 .padding(.horizontal, 14)
@@ -182,20 +183,16 @@ struct AgentChatView: View {
 
 private struct MessageBubble: View {
     let message: ChatMessage
-    @State private var showSources = false
 
     var body: some View {
         HStack {
             if message.role == .user { Spacer(minLength: 40) }
-            VStack(alignment: .leading, spacing: 8) {
-                Text(rendered)
-                    .font(.subheadline)
-                    .foregroundStyle(message.role == .user ? .white : .primary)
-                    .textSelection(.enabled)
-                if !message.sources.isEmpty { sourcesSection }
-            }
-            .padding(12)
-            .background(background, in: RoundedRectangle(cornerRadius: 16))
+            Text(rendered)
+                .font(.body)
+                .foregroundStyle(message.role == .user ? .white : .primary)
+                .textSelection(.enabled)
+                .padding(14)
+                .background(background, in: RoundedRectangle(cornerRadius: 16))
             if message.role != .user { Spacer(minLength: 40) }
         }
     }
@@ -214,33 +211,6 @@ private struct MessageBubble: View {
                                          startPoint: .leading, endPoint: .trailing))
         case .assistant: AnyShapeStyle(.background)
         case .error: AnyShapeStyle(Color.red.opacity(0.15))
-        }
-    }
-
-    private var sourcesSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Button {
-                withAnimation { showSources.toggle() }
-            } label: {
-                Label("\(message.sources.count) sources", systemImage: showSources ? "chevron.down" : "chevron.right")
-                    .font(.caption.weight(.semibold))
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.secondary)
-
-            if showSources {
-                ForEach(Array(message.sources.enumerated()), id: \.element.id) { index, chunk in
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("[\(index + 1)] \(chunk.title)")
-                            .font(.caption.weight(.semibold))
-                        if let link = chunk.link {
-                            Link(chunk.source, destination: link).font(.caption2)
-                        } else {
-                            Text(chunk.source).font(.caption2).foregroundStyle(.secondary)
-                        }
-                    }
-                }
-            }
         }
     }
 }
