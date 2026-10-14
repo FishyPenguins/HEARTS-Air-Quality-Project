@@ -25,7 +25,7 @@ struct AgentChatView: View {
                             if let error = model.setupError {
                                 notice(error, icon: "exclamationmark.triangle.fill", tint: .red)
                             } else if model.isOffline {
-                                notice("Offline mode: no Claude API key is set, so HEARTS shows the source it found instead of writing an answer. See Agent/README.md.",
+                                notice("Offline mode: no Gemini or Claude API key is set, so HEARTS shows the source it found instead of writing an answer. See RAG_AGENT.md.",
                                        icon: "key.slash", tint: .orange)
                             }
                             if model.messages.isEmpty { suggestions }
@@ -52,7 +52,7 @@ struct AgentChatView: View {
                         if thinking { withAnimation { proxy.scrollTo("thinking", anchor: .bottom) } }
                     }
                 }
-                Text("HEARTS is a student research prototype, not medical advice. Call 911 in an emergency.")
+                Text("Answers by \(model.providerName) using HEARTS sources. HEARTS is a student research prototype, not medical advice. Call 911 in an emergency.")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

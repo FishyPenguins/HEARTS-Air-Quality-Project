@@ -16,6 +16,7 @@ final class AgentChatModel {
     private(set) var messages: [ChatMessage] = []
     private(set) var isThinking = false
     let isOffline: Bool
+    let providerName: String
     let setupError: String?
 
     private let agent: HeartsAgent?
@@ -27,7 +28,7 @@ final class AgentChatModel {
         "Does heat affect heart failure?"
     ]
 
-    init(llm: LLMClient? = AnthropicClient.fromConfiguration()) {
+    init(llm: LLMClient? = LLMProviders.configured()) {
         do {
             let kb = try KnowledgeBase.bundled()
             agent = HeartsAgent(knowledgeBase: kb, llm: llm)
@@ -37,6 +38,7 @@ final class AgentChatModel {
             setupError = error.localizedDescription
         }
         isOffline = llm == nil
+        providerName = LLMProviders.name(of: llm)
     }
 
     func send(_ text: String, environment: EnvironmentSnapshot) {

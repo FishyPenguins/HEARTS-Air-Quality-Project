@@ -139,7 +139,10 @@ actor HeartsAgent {
         say to check with their doctor or care team.
         - If the user describes emergency symptoms (chest pain or pressure, severe trouble breathing, fainting, \
         sudden confusion, coughing up pink foamy mucus), tell them to call 911 now, first, before anything else.
-        - HEARTS is a student research prototype, not a medical device. Mention this only if it matters for the question.
+        - Only help with the environment (air, heat, weather, pollen), heart health, and the HEARTS app. If a question \
+        is about something else, say in one sentence that you can only help with those topics.
+        - Don't add disclaimers that HEARTS is a prototype unless the user asks what HEARTS is or how reliable it is. \
+        The app already shows that notice.
 
         Live conditions at the user's location right now:
         \(environment.promptDescription)
@@ -159,7 +162,7 @@ actor HeartsAgent {
         } else {
             parts.append("I couldn't find anything in the HEARTS knowledge base about that.")
         }
-        parts.append("(Offline mode: no Claude API key is set, so this is the retrieved passage, not a written answer.)")
+        parts.append("(Offline mode: no AI API key is set, so this is the retrieved passage, not a written answer.)")
         return parts.joined(separator: "\n\n")
     }
 }

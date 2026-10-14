@@ -36,18 +36,9 @@ nonisolated struct AnthropicClient: LLMClient {
 
     /// Builds a client from the environment / Secrets.plist, or nil if no key is set.
     static func fromConfiguration(bundle: Bundle = .main) -> AnthropicClient? {
-        let env = ProcessInfo.processInfo.environment
-        var secrets: [String: Any] = [:]
-        if let url = bundle.url(forResource: "Secrets", withExtension: "plist"),
-           let data = try? Data(contentsOf: url),
-           let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] {
-            secrets = plist
-        }
-        let key = (env["ANTHROPIC_API_KEY"] ?? secrets["ANTHROPIC_API_KEY"] as? String ?? "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !key.isEmpty, !key.hasPrefix("YOUR_") else { return nil }
-        let model = env["ANTHROPIC_MODEL"] ?? secrets["ANTHROPIC_MODEL"] as? String ?? defaultModel
-        return AnthropicClient(apiKey: key, model: model)
+        let config = LLMConfiguration.load(bundle: bundle)
+        guard let key = config.value("ANTHROPIC_API_KEY") else { return nil }
+        return AnthropicClient(apiKey: key, model: config.value("ANTHROPIC_MODEL") ?? defaultModel)
     }
 
     func complete(system: String, turns: [ChatTurn]) async throws -> String {
@@ -91,14 +82,153 @@ nonisolated struct AnthropicClient: LLMClient {
     }
 }
 
+/// Calls the Google Gemini API (generateContent).
+///
+/// API key lookup order:
+///   1. GEMINI_API_KEY environment variable (Xcode scheme)
+///   2. "GEMINI_API_KEY" in HEARTS Project/Secrets.plist (gitignored, never commit it)
+/// Model can be overridden with GEMINI_MODEL. If the model is busy (503/429), it retries once
+/// and then falls back to the next model in `fallbackModels`.
+nonisolated struct GeminiClient: LLMClient {
+    static let defaultModel = "gemini-3.5-flash-lite"
+    static let fallbackModels = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]
+
+    let apiKey: String
+    let model: String
+    var maxTokens = 2048   // newer Gemini models spend part of this on thinking, so keep it roomy
+    var session: URLSession = .shared
+
+    init(apiKey: String, model: String = GeminiClient.defaultModel) {
+        self.apiKey = apiKey
+        self.model = model
+    }
+
+    static func fromConfiguration(bundle: Bundle = .main) -> GeminiClient? {
+        let config = LLMConfiguration.load(bundle: bundle)
+        guard let key = config.value("GEMINI_API_KEY") else { return nil }
+        return GeminiClient(apiKey: key, model: config.value("GEMINI_MODEL") ?? defaultModel)
+    }
+
+    func complete(system: String, turns: [ChatTurn]) async throws -> String {
+        var models = [model]
+        models += Self.fallbackModels.filter { $0 != model }
+        var lastError: Error = LLMError.emptyReply
+
+        for candidate in models {
+            for attempt in 0..<2 {
+                do {
+                    return try await send(model: candidate, system: system, turns: turns)
+                } catch LLMError.http(let code, let message) where code == 503 || code == 429 {
+                    lastError = LLMError.http(code, message)
+                    if attempt == 0 { try await Task.sleep(nanoseconds: 1_500_000_000) }
+                } catch let error as URLError where error.code == .timedOut || error.code == .networkConnectionLost {
+                    lastError = error
+                }
+            }
+        }
+        throw lastError
+    }
+
+    private func send(model: String, system: String, turns: [ChatTurn]) async throws -> String {
+        let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 60
+        request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(RequestBody(
+            systemInstruction: Content(role: nil, parts: [Part(text: system)]),
+            contents: turns.map { Content(role: $0.role == .user ? "user" : "model", parts: [Part(text: $0.content)]) },
+            generationConfig: GenerationConfig(maxOutputTokens: maxTokens)
+        ))
+
+        let (data, response) = try await session.data(for: request)
+        let status = (response as? HTTPURLResponse)?.statusCode ?? -1
+        guard status == 200 else {
+            let message = (try? JSONDecoder().decode(ErrorBody.self, from: data))?.error.message
+            throw LLMError.http(status, message ?? String(data: data, encoding: .utf8) ?? "")
+        }
+        let body = try JSONDecoder().decode(ResponseBody.self, from: data)
+        let text = (body.candidates?.first?.content?.parts ?? [])
+            .filter { $0.thought != true }
+            .compactMap(\.text)
+            .joined()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { throw LLMError.emptyReply }
+        return text
+    }
+
+    private struct Part: Codable { var text: String?; var thought: Bool? = nil }
+    private struct Content: Codable { let role: String?; let parts: [Part] }
+    private struct GenerationConfig: Encodable { let maxOutputTokens: Int }
+    private struct RequestBody: Encodable {
+        let systemInstruction: Content
+        let contents: [Content]
+        let generationConfig: GenerationConfig
+    }
+    private struct ResponseBody: Decodable {
+        struct Candidate: Decodable { let content: Content? }
+        let candidates: [Candidate]?
+    }
+    private struct ErrorBody: Decodable {
+        struct Detail: Decodable { let message: String }
+        let error: Detail
+    }
+}
+
+/// Reads keys from the environment first, then HEARTS Project/Secrets.plist.
+nonisolated struct LLMConfiguration {
+    let env: [String: String]
+    let secrets: [String: Any]
+
+    static func load(bundle: Bundle = .main) -> LLMConfiguration {
+        var secrets: [String: Any] = [:]
+        if let url = bundle.url(forResource: "Secrets", withExtension: "plist"),
+           let data = try? Data(contentsOf: url),
+           let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] {
+            secrets = plist
+        }
+        return LLMConfiguration(env: ProcessInfo.processInfo.environment, secrets: secrets)
+    }
+
+    /// Non-empty value for `key`, ignoring "YOUR_..." placeholders.
+    func value(_ key: String) -> String? {
+        let raw = (env[key] ?? secrets[key] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return raw.isEmpty || raw.hasPrefix("YOUR_") ? nil : raw
+    }
+}
+
+/// Picks the LLM the app uses: Gemini if a Gemini key is set, otherwise Claude, otherwise nil (offline mode).
+/// Set LLM_PROVIDER to "gemini" or "anthropic" to force one when both keys are present.
+nonisolated enum LLMProviders {
+    static func configured(bundle: Bundle = .main) -> LLMClient? {
+        let config = LLMConfiguration.load(bundle: bundle)
+        let gemini = GeminiClient.fromConfiguration(bundle: bundle)
+        let claude = AnthropicClient.fromConfiguration(bundle: bundle)
+        switch config.value("LLM_PROVIDER")?.lowercased() {
+        case "anthropic", "claude": return claude ?? gemini
+        default: return gemini ?? claude
+        }
+    }
+
+    static func name(of client: LLMClient?) -> String {
+        switch client {
+        case is GeminiClient: return "Gemini"
+        case is AnthropicClient: return "Claude"
+        default: return "offline"
+        }
+    }
+}
+
 nonisolated enum LLMError: LocalizedError {
     case http(Int, String)
     case emptyReply
 
     var errorDescription: String? {
         switch self {
-        case .http(401, _): return "The Claude API key was rejected (401). Check ANTHROPIC_API_KEY."
-        case .http(let code, let msg): return "Claude API error \(code): \(msg)"
+        case .http(401, _), .http(403, _): return "The AI API key was rejected. Check GEMINI_API_KEY or ANTHROPIC_API_KEY in Secrets.plist."
+        case .http(503, _), .http(429, _): return "The AI model is busy right now. Try again in a minute."
+        case .http(let code, let msg): return "AI API error \(code): \(msg)"
         case .emptyReply: return "The model sent back an empty reply."
         }
     }
