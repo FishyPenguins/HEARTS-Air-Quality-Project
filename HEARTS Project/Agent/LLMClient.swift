@@ -82,31 +82,55 @@ nonisolated struct AnthropicClient: LLMClient {
     }
 }
 
-/// Calls the Google Gemini API (generateContent).
+/// Calls Gemini (generateContent), either through the HEARTS server or straight to Google.
 ///
-/// API key lookup order:
-///   1. GEMINI_API_KEY environment variable (Xcode scheme)
-///   2. "GEMINI_API_KEY" in HEARTS Project/Secrets.plist (gitignored, never commit it)
+/// Normal setup: the app talks to the HEARTS Cloudflare Worker (HeartsConfig.geminiProxyURL),
+/// which holds the Gemini key. Nothing secret is in the app or the repo. See server/README.md.
+///
+/// Developer override: put GEMINI_API_KEY in the Xcode scheme env vars or in the gitignored
+/// HEARTS Project/Secrets.plist to call Google directly with your own key.
 /// Model can be overridden with GEMINI_MODEL. If the model is busy (503/429), it retries once
 /// and then falls back to the next model in `fallbackModels`.
 nonisolated struct GeminiClient: LLMClient {
     static let defaultModel = "gemini-3.5-flash-lite"
     static let fallbackModels = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]
+    static let googleBaseURL = URL(string: "https://generativelanguage.googleapis.com")!
 
-    let apiKey: String
+    /// Where requests go: Google, or the HEARTS server.
+    let baseURL: URL
+    /// Only set when calling Google directly. The HEARTS server adds the key itself.
+    let apiKey: String?
     let model: String
     var maxTokens = 2048   // newer Gemini models spend part of this on thinking, so keep it roomy
     var session: URLSession = .shared
 
+    /// Direct to Google with your own key.
     init(apiKey: String, model: String = GeminiClient.defaultModel) {
+        self.baseURL = Self.googleBaseURL
         self.apiKey = apiKey
         self.model = model
     }
 
+    /// Through the HEARTS server, which holds the key.
+    init(proxyURL: URL, model: String = GeminiClient.defaultModel) {
+        self.baseURL = proxyURL
+        self.apiKey = nil
+        self.model = model
+    }
+
+    var usesProxy: Bool { apiKey == nil }
+
     static func fromConfiguration(bundle: Bundle = .main) -> GeminiClient? {
         let config = LLMConfiguration.load(bundle: bundle)
-        guard let key = config.value("GEMINI_API_KEY") else { return nil }
-        return GeminiClient(apiKey: key, model: config.value("GEMINI_MODEL") ?? defaultModel)
+        let model = config.value("GEMINI_MODEL") ?? defaultModel
+        if let key = config.value("GEMINI_API_KEY") {
+            return GeminiClient(apiKey: key, model: model)
+        }
+        let proxy = config.value("GEMINI_PROXY_URL") ?? HeartsConfig.geminiProxyURL
+        if let url = URL(string: proxy), url.scheme == "https" {
+            return GeminiClient(proxyURL: url, model: model)
+        }
+        return nil
     }
 
     func complete(system: String, turns: [ChatTurn]) async throws -> String {
@@ -130,11 +154,16 @@ nonisolated struct GeminiClient: LLMClient {
     }
 
     private func send(model: String, system: String, turns: [ChatTurn]) async throws -> String {
-        let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent")!
+        let base = baseURL.absoluteString.hasSuffix("/") ? String(baseURL.absoluteString.dropLast()) : baseURL.absoluteString
+        let url = URL(string: "\(base)/v1beta/models/\(model):generateContent")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.timeoutInterval = 60
-        request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+        if let apiKey {
+            request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+        } else {
+            request.setValue("hearts-ios", forHTTPHeaderField: "X-HEARTS-App")
+        }
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(RequestBody(
             systemInstruction: Content(role: nil, parts: [Part(text: system)]),
@@ -226,7 +255,7 @@ nonisolated enum LLMError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .http(401, _), .http(403, _): return "The AI API key was rejected. Check GEMINI_API_KEY or ANTHROPIC_API_KEY in Secrets.plist."
+        case .http(401, _), .http(403, _): return "The AI key was rejected. If you use the HEARTS server, its GEMINI_API_KEY secret needs a new key."
         case .http(503, _), .http(429, _): return "The AI model is busy right now. Try again in a minute."
         case .http(let code, let msg): return "AI API error \(code): \(msg)"
         case .emptyReply: return "The model sent back an empty reply."

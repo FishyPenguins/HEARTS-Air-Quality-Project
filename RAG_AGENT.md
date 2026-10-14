@@ -24,21 +24,20 @@ With no API key set, the chat still runs in **offline mode** and shows the best-
 | `Agent/KnowledgeBase.swift` | Loads the JSON |
 | `Agent/BM25Retriever.swift` | Search (the "R" in RAG) |
 | `Agent/LLMClient.swift` | `LLMClient` protocol, Gemini and Claude clients, key loading |
+| `Agent/HeartsConfig.swift` | The Worker URL (safe to commit) |
+| `server/gemini-proxy-worker.js` | The Cloudflare Worker that holds the key |
 | `Agent/HeartsAgent.swift` | The agent: retrieve, build prompt, call the LLM, keep history |
 | `Agent/EnvironmentSnapshot+Exposome.swift` | Turns dashboard readings into agent input |
 | `Agent/AgentChatModel.swift` | State for the chat screen |
 | `Views/AgentChatView.swift` | The chat screen |
 
-## Setting the API key
+## The Gemini key
 
-The app uses **Gemini** if `GEMINI_API_KEY` is set, otherwise **Claude** if `ANTHROPIC_API_KEY` is set, otherwise offline mode. Set `LLM_PROVIDER` to `gemini` or `anthropic` to force one when both are there. **Never commit a key.**
+The key is **not** in the app or the repo. The app sends chat requests to the HEARTS Cloudflare Worker (`server/`), which holds the key and forwards them to Gemini, so the chat works for anyone who clones the repo. The Worker URL lives in `HEARTS Project/Agent/HeartsConfig.swift`. Setup steps and how to change the key are in `server/README.md`.
 
-- **Secrets.plist (recommended):** copy `Secrets.example.plist` to `HEARTS Project/Secrets.plist` and paste your key. It's in `.gitignore`, and it works whether the app is launched from Xcode or the home screen.
-- **Scheme env var:** Xcode > Product > Scheme > Edit Scheme > Run > Arguments > Environment Variables. This only works when launched from Xcode.
+**Developer override:** to call Google directly with your own key (for example while the Worker is down), copy `Secrets.example.plist` to `HEARTS Project/Secrets.plist` and add `GEMINI_API_KEY`. That file is gitignored. It's also how to use Claude instead (`ANTHROPIC_API_KEY`, and `LLM_PROVIDER` = `anthropic`).
 
-Optional overrides: `GEMINI_MODEL` (default `gemini-3.5-flash-lite`) and `ANTHROPIC_MODEL` (default `claude-sonnet-5-5`).
-
-Note: a key inside the app can be pulled out of the app file by anyone who has it. That's fine for our test devices. Before real patients use it, the AI call should move to a small backend server.
+Optional overrides: `GEMINI_MODEL` (default `gemini-3.5-flash-lite`) and `GEMINI_PROXY_URL`.
 
 ## Adding knowledge
 
@@ -60,5 +59,4 @@ Title words count 3x and tags 2x in search, so put the words patients would actu
 ## Next steps
 
 - Hook in the risk model score once it runs on the phone (add it to `EnvironmentSnapshot.promptDescription`).
-- Move the Claude call to a backend before real patients use the app.
 - Grow the knowledge base as the lit search continues (OpenEvidence questions, Get With The Guidelines findings).

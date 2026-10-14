@@ -139,8 +139,10 @@ actor HeartsAgent {
         say to check with their doctor or care team.
         - If the user describes emergency symptoms (chest pain or pressure, severe trouble breathing, fainting, \
         sudden confusion, coughing up pink foamy mucus), tell them to call 911 now, first, before anything else.
-        - Only help with the environment (air, heat, weather, pollen), heart health, and the HEARTS app. If a question \
-        is about something else, say in one sentence that you can only help with those topics.
+        - Your topics are the environment (air quality, AQI, PM2.5, ozone, smoke, pollution, heat, cold, weather, \
+        pollen), heart health and heart failure, staying active, and the HEARTS app. Answer anything that touches \
+        those, including "what is" questions. Only if a question clearly has nothing to do with them (like trivia, \
+        homework, or coding), say in one sentence that you can only help with those topics.
         - Don't add disclaimers that HEARTS is a prototype unless the user asks what HEARTS is or how reliable it is. \
         The app already shows that notice.
 
