@@ -325,5 +325,108 @@
       "what to do"
     ],
     "text": "Wildfire smoke is mostly PM2.5 and can push the AQI into the unhealthy range fast. On smoke days, people with heart failure should stay indoors with windows and doors closed, run a portable air cleaner if they have one (these can cut indoor PM2.5 by about half), avoid outdoor exercise, and watch for warning signs like shortness of breath, palpitations, or unusual tiredness."
+  },
+  {
+    "id": "ozone-health",
+    "title": "Ozone and smog: what it does and who is at risk",
+    "source": "U.S. EPA: Health Effects of Ozone Pollution",
+    "url": "https://www.epa.gov/ozone-pollution/health-effects-ozone-pollution",
+    "tags": [
+      "ozone",
+      "smog",
+      "sunny",
+      "hot",
+      "breathing",
+      "lungs",
+      "older adults",
+      "outside"
+    ],
+    "text": "Ground-level ozone is the main part of smog, and it can climb to unhealthy levels on hot, sunny days. It can cause coughing, a scratchy throat and pain when you take a deep breath, and it can inflame the airways. Older adults and people who are active outside are among the groups most at risk. The EPA suggests checking the daily AQI on AirNow.gov and following its ozone guide when levels reach the unhealthy range."
+  },
+  {
+    "id": "n95-respirator",
+    "title": "Masks for smoke: N95 respirators",
+    "source": "AirNow / U.S. EPA: Respiratory Protection fact sheet (2021)",
+    "url": "https://www.airnow.gov/sites/default/files/2021-07/respiratory-protection-factsheet-072021.pdf",
+    "tags": [
+      "mask",
+      "n95",
+      "p100",
+      "respirator",
+      "smoke",
+      "wildfire",
+      "ash",
+      "face covering"
+    ],
+    "text": "For smoke or ash, use a NIOSH-approved N95 or P100 particulate respirator with two head straps. Masks with one strap or ear loops don't seal and won't protect your lungs, and any gap or facial hair lets smoky air in. A respirator can make breathing harder, so people with heart or lung disease should ask their doctor before using one. Staying indoors or cutting time outside is the most effective way to lower smoke exposure, especially for people with heart disease."
+  },
+  {
+    "id": "air-cleaner-hepa",
+    "title": "Cleaning the air inside your home (HEPA air cleaners)",
+    "source": "American Lung Association: How to Choose an Air Cleaner",
+    "url": "https://www.lung.org/blog/how-to-choose-an-air-cleaner",
+    "tags": [
+      "air purifier",
+      "air cleaner",
+      "hepa",
+      "indoors",
+      "inside",
+      "home",
+      "smoke",
+      "filter"
+    ],
+    "text": "A portable air cleaner with a HEPA filter works well at removing smoke particles from indoor air. Pick one rated for your room size using its CADR number: about 200 or less for a small room, 200 to 300 for a medium room, and over 300 for a large room. A CARB-certified unit is the safest choice, and good units can cost $100 or less. The EPA doesn't recommend homemade air cleaners as a long-term replacement for a store-bought one."
+  },
+  {
+    "id": "hf-daily-weight-zones",
+    "title": "Daily weight checks and the heart failure zones",
+    "source": "American Heart Association: Rise Above Heart Failure Self-Check Plan (2019)",
+    "url": "https://health.ucdavis.edu/media-resources/health-education/documents/pdfs/SelfCheckPlanHF.pdf",
+    "tags": [
+      "weight",
+      "weigh",
+      "scale",
+      "gain",
+      "swelling",
+      "zones",
+      "green",
+      "yellow",
+      "red",
+      "self check"
+    ],
+    "text": "The AHA self-check plan asks people with heart failure to weigh themselves every day. Gaining more than 2 to 3 pounds in a day or 5 pounds in a week is a warning sign. Green zone means no new symptoms and stable weight. Yellow zone (more swelling, a dry cough, more shortness of breath with activity, trouble sleeping) means call your doctor. Red zone (shortness of breath at rest, can't lie flat, new dizziness or confusion) means get checked right away by calling your doctor or 911."
+  },
+  {
+    "id": "cold-weather-tips",
+    "title": "Protecting your heart in cold and snow",
+    "source": "American Heart Association: Protect your heart in the cold and snow",
+    "url": "https://easternstates.heart.org/2014/12/09/protect-your-heart-in-the-cold-and-snow/",
+    "tags": [
+      "cold",
+      "winter",
+      "snow",
+      "shoveling",
+      "freezing",
+      "layers",
+      "hypothermia"
+    ],
+    "text": "Cold weather adds strain on the heart, and sudden hard work like shoveling heavy snow can be dangerous for people with heart problems. The AHA says to avoid sudden exertion, dress in layers with a hat and warm gloves and socks, and stay out of wind and wet. Skip alcohol before going out, since it makes you feel warmer than you are. People with heart disease and older adults are more at risk for hypothermia, so watch for shivering, confusion, clumsiness and drowsiness."
+  },
+  {
+    "id": "hf-physical-activity",
+    "title": "Staying active with heart failure",
+    "source": "Cedars-Sinai: Heart Failure and Physical Activity",
+    "url": "https://www.cedars-sinai.org/health-topics/heart-failure-and-physical-activity",
+    "tags": [
+      "exercise",
+      "walk",
+      "walking",
+      "active",
+      "activity",
+      "rehab",
+      "cardiac rehab",
+      "workout"
+    ],
+    "text": "Regular, moderate activity can ease heart failure symptoms and help mood, energy, blood pressure and circulation. Walking, swimming, dancing and biking are good options. Talk with your care team before starting an exercise plan so it fits you, and ask whether cardiac rehab is right for you."
   }
 ]

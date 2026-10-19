@@ -20,7 +20,7 @@ With no API key set, the chat still runs in **offline mode** and shows the best-
 
 | File | What it does |
 |---|---|
-| `Agent/Knowledge/hearts_knowledge.json` | The knowledge base: 21 short summaries, each with its source and link |
+| `Agent/Knowledge/hearts_knowledge.json` | The knowledge base: 27 short summaries, each with its source and link |
 | `Agent/KnowledgeBase.swift` | Loads the JSON |
 | `Agent/BM25Retriever.swift` | Search (the "R" in RAG) |
 | `Agent/LLMClient.swift` | `LLMClient` protocol, Gemini and Claude clients, key loading |
