@@ -44,7 +44,7 @@ enum ExposomeFactor: String, CaseIterable, Identifiable {
 
     var sourceName: String {
         switch self {
-        case .temperature, .humidity: return "NOAA"
+        case .temperature, .humidity: return "Open-Meteo"
         case .pm25, .aqi:             return "Open-Meteo"
         case .heatIndex:              return "Derived"
         case .ambientNoise:           return "—"

@@ -21,6 +21,10 @@ final class HeatIndexSource: ExposomeSource {
 
         guard let t = temp, let h = humidity else { return nil }
 
+        // Heat index is only meaningful when it's hot. Below 80°F return nil so
+        // the dashboard shows "Not available" rather than a misleading number.
+        guard t.numericValue >= 80 else { return nil }
+
         let hi = heatIndex(tempF: t.numericValue, rh: h.numericValue)
         return ExposomeReading(
             factor: .heatIndex,
@@ -30,7 +34,7 @@ final class HeatIndexSource: ExposomeSource {
         )
     }
 
-    /// NOAA Rothfusz regression. Returns heat index in °F.
+    /// NOAA Rothfusz regression. Valid for temperatures ≥ 80°F.
     private func heatIndex(tempF t: Double, rh: Double) -> Double {
         // Steadman simple formula for initial estimate
         let simple = 0.5 * (t + 61.0 + (t - 68.0) * 1.2 + rh * 0.094)
