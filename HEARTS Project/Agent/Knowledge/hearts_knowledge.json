@@ -273,15 +273,18 @@
     "source": "HEARTS project notes (Oct 2026)",
     "url": "https://github.com/FishyPenguins/HEARTS-Air-Quality-Project",
     "tags": [
-      "risk",
-      "model",
-      "score",
-      "machine learning",
-      "how it works",
       "hearts",
-      "prediction"
+      "how it works",
+      "level",
+      "machine learning",
+      "model",
+      "percent",
+      "prediction",
+      "risk",
+      "score",
+      "why"
     ],
-    "text": "HEARTS uses a regular machine learning model (logistic regression right now) to estimate hospitalization risk from patient information and air exposure. So far it has been trained only on fake practice patients, not real patients, so its numbers are not real predictions yet. The plan is to use the air from the same day and the day before, since that is what most studies use. The AI chat assistant is not the risk model: it takes the risk information and live air data and explains them in plain language."
+    "text": "HEARTS runs a regular machine learning model (logistic regression) on the phone. It gives the chance of a heart failure hospital stay in the next 7 days if today's conditions continue, and labels it Low, Moderate, Elevated or High. The person's chart sets their starting risk (things like NYHA class, NT-proBNP, past hospital stays and kidney disease). Today's air and heat are added on top using effect sizes from published studies, using the air from today and yesterday. So far it has only been trained on fake practice patients, so its numbers are not real predictions. The AI chat is not the risk model: it explains the risk and the live conditions in plain language."
   },
   {
     "id": "data-sources-history",

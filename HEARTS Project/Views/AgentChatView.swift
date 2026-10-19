@@ -5,6 +5,11 @@ import SwiftUI
 struct AgentChatView: View {
     let locationLabel: String
     let exposomeService: ExposomeService
+    /// The person HEARTS is tailored to right now, and their risk, so answers are personal.
+    var patient: Patient? = nil
+    var risk: RiskAssessment? = nil
+    /// Conditions the risk was scored with when the what-if simulator is on (otherwise live readings).
+    var whatIf: RiskConditions? = nil
 
     @State private var model = AgentChatModel()
     @State private var draft = ""
@@ -12,7 +17,24 @@ struct AgentChatView: View {
     @Environment(\.dismiss) private var dismiss
 
     private var snapshot: EnvironmentSnapshot {
-        EnvironmentSnapshot(statuses: exposomeService.statuses, locationName: locationLabel)
+        var s = EnvironmentSnapshot(statuses: exposomeService.statuses, locationName: locationLabel)
+        if let whatIf {
+            // Demo mode: answer as if these were today's conditions.
+            s.aqi = whatIf.aqi
+            s.pm25 = whatIf.pm25
+            s.heatIndexF = whatIf.heatIndexF
+            s.temperatureF = whatIf.temperatureF
+        }
+        return s.personalized(for: patient, risk: risk)
+    }
+
+    private var suggestionList: [String] {
+        guard let risk else { return AgentChatModel.suggestions }
+        let me = patient?.isCustomProfile == true
+        return [
+            "Why is \(me ? "my" : "this patient's") risk \(risk.levelName.lowercased()) today?",
+            me ? "What should I watch for this week?" : "What should this patient watch for this week?"
+        ] + AgentChatModel.suggestions.prefix(3)
     }
 
     var body: some View {
@@ -88,12 +110,17 @@ struct AgentChatView: View {
                 .font(.title)
                 .foregroundStyle(.white)
             VStack(alignment: .leading, spacing: 2) {
-                Text("Using live conditions in \(locationLabel)")
+                Text(whatIf == nil ? "Using live conditions in \(locationLabel)" : "Using what-if conditions")
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(.white)
                 Text(conditionsLine(s))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.85))
+                if let patient {
+                    Text(tailoredLine(patient))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white)
+                }
             }
             Spacer()
         }
@@ -104,6 +131,12 @@ struct AgentChatView: View {
                            startPoint: .leading, endPoint: .trailing),
             in: RoundedRectangle(cornerRadius: 16)
         )
+    }
+
+    private func tailoredLine(_ patient: Patient) -> String {
+        var line = "Tailored to \(patient.displayName) (\(patient.summaryLine))"
+        if let risk { line += " · \(risk.levelName) risk \(risk.percentText)" }
+        return line
     }
 
     private func conditionsLine(_ s: EnvironmentSnapshot) -> String {
@@ -129,7 +162,7 @@ struct AgentChatView: View {
             Text("Try asking")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
-            ForEach(AgentChatModel.suggestions, id: \.self) { prompt in
+            ForEach(suggestionList, id: \.self) { prompt in
                 Button {
                     model.send(prompt, environment: snapshot)
                 } label: {

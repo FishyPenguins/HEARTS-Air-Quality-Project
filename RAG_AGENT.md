@@ -56,7 +56,10 @@ Add an entry to `hearts_knowledge.json`:
 
 Title words count 3x and tags 2x in search, so put the words patients would actually type there. If a common word isn't matching, add it to the `synonyms` list in `BM25Retriever.swift`.
 
+## Personal answers
+
+The chat answers for whoever is selected on the map (one of the 38 fake patients, or "My info"). `EnvironmentSnapshot.personalized(for:risk:)` adds the person's chart (`Patient.promptDescription`) and today's risk score (`RiskAssessment.promptDescription`) to the system prompt, plus extra search words from their chart (COPD, kidney disease, water pills). So "is it safe to walk today?" gets a different answer for Patient X (92, NYHA 4, high risk) than for Patient M (50, NYHA 2, low risk). If the what-if simulator is on, the chat uses those conditions too.
+
 ## Next steps
 
-- Hook in the risk model score once it runs on the phone (add it to `EnvironmentSnapshot.promptDescription`).
 - Grow the knowledge base as the lit search continues (OpenEvidence questions, Get With The Guidelines findings).

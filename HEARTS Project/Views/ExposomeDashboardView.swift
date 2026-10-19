@@ -5,12 +5,33 @@ import CoreLocation
 struct ExposomeDashboardView: View {
     @State private var locationManager = LocationManager()
     @State private var exposomeService = ExposomeService()
+    @State private var patientStore = PatientStore()
+    @State private var alertManager = RiskAlertManager()
     @State private var showStats = false
     @State private var showChat = false
+    @State private var showPicker = false
+    @State private var showRisk = false
+    /// Set from the risk screen's "What if…" simulator; nil means use live readings.
+    @State private var whatIf: RiskConditions?
     @State private var mapPosition: MapCameraPosition = .userLocation(
         followsHeading: false,
         fallback: .automatic
     )
+
+    private static let riskModel: RiskModel? = try? RiskModel.bundled()
+
+    private var snapshot: EnvironmentSnapshot {
+        EnvironmentSnapshot(statuses: exposomeService.statuses, locationName: locationManager.locationLabel)
+    }
+
+    private var liveConditions: RiskConditions { RiskConditions(snapshot: snapshot) }
+
+    private var conditions: RiskConditions { whatIf ?? liveConditions }
+
+    private var currentRisk: RiskAssessment? {
+        guard let model = Self.riskModel, let patient = patientStore.selected else { return nil }
+        return model.assess(patient, conditions: conditions)
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -25,19 +46,34 @@ struct ExposomeDashboardView: View {
                     .padding(.top, 60)
                     .padding(.horizontal, 16)
                 Spacer()
-                askButton
+                if let patient = patientStore.selected {
+                    RiskCardView(
+                        patient: patient,
+                        risk: currentRisk,
+                        alert: alertManager.top,
+                        isSimulated: whatIf != nil,
+                        onSwitchPatient: { showPicker = true },
+                        onOpenDetails: { showRisk = true },
+                        onStep: { patientStore.step(by: $0) }
+                    )
+                    .padding(.horizontal, 16)
                     .padding(.bottom, 12)
+                }
+                askButton
+                    .padding(.bottom, 10)
                 statsButton
-                    .padding(.bottom, 48)
+                    .padding(.bottom, 40)
             }
         }
         .onAppear {
             locationManager.requestLocation()
+            refreshAlerts()
         }
         .onChange(of: locationManager.location) { _, newLocation in
             guard let loc = newLocation else { return }
             Task { await exposomeService.refresh(location: loc) }
         }
+        .onChange(of: currentRisk) { _, _ in refreshAlerts() }
         .sheet(isPresented: $showStats) {
             StatsSheetView(
                 locationLabel: locationManager.locationLabel,
@@ -48,9 +84,36 @@ struct ExposomeDashboardView: View {
         .sheet(isPresented: $showChat) {
             AgentChatView(
                 locationLabel: locationManager.locationLabel,
-                exposomeService: exposomeService
+                exposomeService: exposomeService,
+                patient: patientStore.selected,
+                risk: currentRisk,
+                whatIf: whatIf
             )
         }
+        .sheet(isPresented: $showPicker) {
+            PatientPickerView(store: patientStore, model: Self.riskModel, conditions: conditions)
+        }
+        .sheet(isPresented: $showRisk) {
+            if let model = Self.riskModel {
+                RiskDetailView(
+                    model: model,
+                    store: patientStore,
+                    liveConditions: liveConditions,
+                    whatIf: $whatIf,
+                    onAskHEARTS: {
+                        Task {
+                            try? await Task.sleep(for: .milliseconds(450))
+                            showChat = true
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    private func refreshAlerts() {
+        // Phone notifications only for real readings, not the what-if simulator.
+        alertManager.update(patient: patientStore.selected, risk: currentRisk, notify: whatIf == nil)
     }
 
     private var askButton: some View {
@@ -94,6 +157,13 @@ struct ExposomeDashboardView: View {
             }
 
             Spacer()
+
+            if let patient = patientStore.selected {
+                Button { showPicker = true } label: {
+                    PatientAvatar(patient: patient, level: currentRisk?.levelIndex, size: 32)
+                }
+                .accessibilityLabel("Switch patient, now \(patient.displayName)")
+            }
 
             Button {
                 Task { await forceRefresh() }

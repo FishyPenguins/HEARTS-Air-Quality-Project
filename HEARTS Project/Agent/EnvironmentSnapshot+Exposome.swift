@@ -22,3 +22,20 @@ extension EnvironmentSnapshot {
         )
     }
 }
+
+extension EnvironmentSnapshot {
+    /// Same snapshot, plus the selected person and their risk, so the chat answers for that person.
+    nonisolated func personalized(for patient: Patient?, risk: RiskAssessment?) -> EnvironmentSnapshot {
+        var copy = self
+        copy.patientDescription = patient?.promptDescription
+        copy.riskDescription = risk?.promptDescription
+        var hints: [String] = []
+        if let patient {
+            if patient.hasCOPD { hints.append("copd lungs breathing") }
+            if patient.hasCKD || patient.takesDiuretic { hints.append("heat medications water pills") }
+        }
+        if let risk, risk.levelIndex >= 2 { hints.append("warning signs weight swelling") }
+        copy.patientHints = hints
+        return copy
+    }
+}

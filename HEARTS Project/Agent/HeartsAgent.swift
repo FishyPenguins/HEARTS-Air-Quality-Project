@@ -10,6 +10,12 @@ nonisolated struct EnvironmentSnapshot: Sendable, Equatable {
     var humidityPercent: Double?
     var heatIndexF: Double?
     var pollen: Double?
+    /// The person the user picked in HEARTS (from Patient.promptDescription), if any.
+    var patientDescription: String?
+    /// Today's risk model result for that person (from RiskAssessment.promptDescription), if any.
+    var riskDescription: String?
+    /// Extra search words from the person's chart (COPD, kidney disease, ...).
+    var patientHints: [String] = []
     var capturedAt: Date = Date()
 
     static let empty = EnvironmentSnapshot()
@@ -52,7 +58,7 @@ nonisolated struct EnvironmentSnapshot: Sendable, Equatable {
             if feels >= 85 { hints.append("heat hot") }
             if feels <= 32 { hints.append("cold") }
         }
-        return hints
+        return hints + patientHints
     }
 }
 
@@ -92,9 +98,10 @@ actor HeartsAgent {
         // Include the previous user turn so follow-ups ("what about tomorrow?") still retrieve well.
         let lastUserTurn = history.last(where: { $0.role == .user })?.content ?? ""
         let questionHits = retriever.retrieve(trimmed + " " + lastUserTurn, limit: retrievalLimit).map(\.chunk)
-        let conditionHits = environment.retrievalHints.prefix(2)
+        let conditionHits = environment.retrievalHints.prefix(3)
             .compactMap { retriever.retrieve($0, limit: 1).first?.chunk }
-        // Mostly chunks about the question, plus up to 2 slots for today's conditions (bad air, heat, cold).
+        // Mostly chunks about the question, plus up to 2 slots for today's conditions (bad air, heat, cold)
+        // and the person's chart.
         var sources = Array(questionHits.prefix(max(1, retrievalLimit - conditionHits.count)))
         for chunk in conditionHits + questionHits where sources.count < retrievalLimit && !sources.contains(chunk) {
             sources.append(chunk)
@@ -156,15 +163,45 @@ actor HeartsAgent {
         Live conditions at the user's location right now:
         \(environment.promptDescription)
 
+        \(personalSection(environment))
+
         Sources (do not mention these in your reply — use the information, not the references):
         \(numbered.isEmpty ? "(no matching sources found)" : numbered)
         """
+    }
+
+    /// The part of the prompt about the person and their risk. Empty when no one is selected.
+    static func personalSection(_ environment: EnvironmentSnapshot) -> String {
+        guard let patient = environment.patientDescription else {
+            return "No personal profile is selected, so give general advice."
+        }
+        var text = """
+        About the person you are talking with (use this to make answers personal, for example \
+        "with your kidney disease" or "since you've been in the hospital before"; never read the whole \
+        list back to them):
+        \(patient)
+        """
+        if let risk = environment.riskDescription {
+            text += """
+
+
+            Their HEARTS risk today:
+            \(risk)
+            If they ask why their risk is what it is, explain the biggest things raising it in plain words. \
+            Remind them gently that this is a student prototype trained on practice data, and that their \
+            care team knows them best. Never let the risk number replace calling the doctor about symptoms.
+            """
+        }
+        return text
     }
 
     static func offlineAnswer(sources: [KnowledgeChunk], environment: EnvironmentSnapshot) -> String {
         var parts: [String] = []
         if let aqi = environment.aqi {
             parts.append("Right now the AQI is \(aqi) (\(environment.aqiCategory ?? "")).")
+        }
+        if let risk = environment.riskDescription?.split(separator: "\n").first {
+            parts.append(risk.replacingOccurrences(of: "- ", with: ""))
         }
         if let top = sources.first {
             parts.append("Here's the most relevant thing I found:\n\n\(top.title)\n\(top.text)")
