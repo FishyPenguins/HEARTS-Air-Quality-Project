@@ -30,10 +30,10 @@ struct AgentChatView: View {
 
     private var suggestionList: [String] {
         guard let risk else { return AgentChatModel.suggestions }
-        let me = patient?.isCustomProfile == true
+        // The chat talks to the selected person as "you", so the suggestions are in their voice.
         return [
-            "Why is \(me ? "my" : "this patient's") risk \(risk.levelName.lowercased()) today?",
-            me ? "What should I watch for this week?" : "What should this patient watch for this week?"
+            "Why is my risk \(risk.levelName.lowercased()) today?",
+            "What should I watch for this week?"
         ] + AgentChatModel.suggestions.prefix(3)
     }
 
