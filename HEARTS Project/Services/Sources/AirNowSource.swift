@@ -1,16 +1,9 @@
 import CoreLocation
 import Foundation
 
-/// Fetches PM2.5 and AQI from the EPA AirNow API.
-/// Get a free key at https://docs.airnowapi.org/
-/// Replace the placeholder below with your key, or set AIRNOW_API_KEY in the scheme env vars.
+/// Fetches PM2.5 and US AQI from Open-Meteo Air Quality API (free, no key required).
 final class AirNowSource: ExposomeSource {
     var supportedFactors: [ExposomeFactor] { [.pm25, .aqi] }
-
-    // Read from environment first, then fall back to the compile-time placeholder.
-    private var apiKey: String {
-        ProcessInfo.processInfo.environment["AIRNOW_API_KEY"] ?? "0DD7E724-0180-4F2F-A15E-75F3DF511C30"
-    }
 
     private var cache: [String: (pm25: ExposomeReading?, aqi: ExposomeReading?, date: Date)] = [:]
     private let cacheTTL: TimeInterval = 3600
@@ -39,61 +32,64 @@ final class AirNowSource: ExposomeSource {
     }
 
     private func fetchBoth(at location: CLLocation) async throws -> (ExposomeReading?, ExposomeReading?) {
-        guard apiKey != "YOUR_AIRNOW_API_KEY" else {
-            throw AirNowError.noApiKey
-        }
-
-        let lat = location.coordinate.latitude
-        let lon = location.coordinate.longitude
-        var components = URLComponents(string: "https://www.airnowapi.org/aq/observation/latLong/current/")!
+        var components = URLComponents(string: "https://air-quality-api.open-meteo.com/v1/air-quality")!
         components.queryItems = [
-            URLQueryItem(name: "format", value: "application/json"),
-            URLQueryItem(name: "latitude", value: String(format: "%.4f", lat)),
-            URLQueryItem(name: "longitude", value: String(format: "%.4f", lon)),
-            URLQueryItem(name: "distance", value: "25"),
-            URLQueryItem(name: "API_KEY", value: apiKey)
+            URLQueryItem(name: "latitude",  value: String(format: "%.4f", location.coordinate.latitude)),
+            URLQueryItem(name: "longitude", value: String(format: "%.4f", location.coordinate.longitude)),
+            URLQueryItem(name: "current",   value: "pm2_5,us_aqi"),
+            URLQueryItem(name: "timezone",  value: "auto")
         ]
 
         let (data, response) = try await session.data(from: components.url!)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-            throw AirNowError.httpError((response as? HTTPURLResponse)?.statusCode ?? -1)
+            throw AirQualityError.httpError((response as? HTTPURLResponse)?.statusCode ?? -1)
         }
 
-        guard let observations = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-            throw AirNowError.unexpectedResponse
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        guard let current = json?["current"] as? [String: Any] else {
+            throw AirQualityError.unexpectedResponse
         }
 
-        let now = Date()
-        var pm25Reading: ExposomeReading?
-        var aqiReading: ExposomeReading?
-
-        for obs in observations {
-            guard let paramName = obs["ParameterName"] as? String,
-                  let aqiValue = obs["AQI"] as? Int else { continue }
-
-            if paramName == "PM2.5" {
-                pm25Reading = ExposomeReading(
-                    factor: .pm25,
-                    numericValue: Double(aqiValue),
-                    displayValue: "\(aqiValue) µg/m³",
-                    timestamp: now
-                )
-                aqiReading = ExposomeReading(
-                    factor: .aqi,
-                    numericValue: Double(aqiValue),
-                    displayValue: aqiCategory(aqiValue),
-                    timestamp: now
-                )
+        let timestamp: Date = {
+            if let timeStr = current["time"] as? String {
+                let fmt = ISO8601DateFormatter()
+                fmt.formatOptions = [.withFullDate, .withTime, .withColonSeparatorInTime]
+                return fmt.date(from: timeStr) ?? Date()
             }
-        }
+            return Date()
+        }()
+
+        let pm25Reading: ExposomeReading? = {
+            let raw = current["pm2_5"]
+            guard let value = (raw as? Double) ?? (raw as? Int).map(Double.init),
+                  !(raw is NSNull) else { return nil }
+            return ExposomeReading(
+                factor: .pm25,
+                numericValue: value,
+                displayValue: String(format: "%.1f µg/m³", value),
+                timestamp: timestamp
+            )
+        }()
+
+        let aqiReading: ExposomeReading? = {
+            let raw = current["us_aqi"]
+            guard let value = (raw as? Double) ?? (raw as? Int).map(Double.init),
+                  !(raw is NSNull) else { return nil }
+            return ExposomeReading(
+                factor: .aqi,
+                numericValue: value,
+                displayValue: aqiCategory(Int(value)),
+                timestamp: timestamp
+            )
+        }()
 
         return (pm25Reading, aqiReading)
     }
 
     private func aqiCategory(_ aqi: Int) -> String {
         switch aqi {
-        case 0...50:   return "\(aqi) — Good"
-        case 51...100: return "\(aqi) — Moderate"
+        case 0...50:    return "\(aqi) — Good"
+        case 51...100:  return "\(aqi) — Moderate"
         case 101...150: return "\(aqi) — Unhealthy for Sensitive Groups"
         case 151...200: return "\(aqi) — Unhealthy"
         case 201...300: return "\(aqi) — Very Unhealthy"
@@ -101,13 +97,12 @@ final class AirNowSource: ExposomeSource {
         }
     }
 
-    enum AirNowError: LocalizedError {
-        case noApiKey, unexpectedResponse, httpError(Int)
+    enum AirQualityError: LocalizedError {
+        case unexpectedResponse, httpError(Int)
         var errorDescription: String? {
             switch self {
-            case .noApiKey:           return "AirNow API key not configured"
-            case .unexpectedResponse: return "Unexpected AirNow response format"
-            case .httpError(let c):   return "AirNow HTTP \(c)"
+            case .unexpectedResponse: return "Unexpected air quality response format"
+            case .httpError(let c):   return "Air quality service HTTP \(c)"
             }
         }
     }
