@@ -71,6 +71,8 @@ final class ExposomeService {
                 }
             }
             for await (factor, status) in group {
+                // Drop late results from an older location (for example after switching patients quickly).
+                guard lastFetchKey == key else { continue }
                 statuses[factor] = status
             }
         }

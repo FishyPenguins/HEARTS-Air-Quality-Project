@@ -20,8 +20,26 @@ struct ExposomeDashboardView: View {
 
     private static let riskModel: RiskModel? = try? RiskModel.bundled()
 
+    /// A practice patient's home town, or nil when "My info" is selected (then the phone's GPS is used).
+    private var patientHome: CLLocation? {
+        patientStore.selected.flatMap { PatientHome.location(for: $0) }
+    }
+
+    /// Where the live air and weather come from: the selected patient's home town, else the phone.
+    private var activeLocation: CLLocation? { patientHome ?? locationManager.location }
+
+    private var activeLabel: String {
+        if patientHome != nil, let town = patientStore.selected?.town { return town }
+        return locationManager.locationLabel
+    }
+
+    /// Tells the chat whether these readings are the patient's home town or where the phone is.
+    private var chatLocationName: String {
+        patientHome != nil ? "\(activeLabel) (the patient's home town)" : activeLabel
+    }
+
     private var snapshot: EnvironmentSnapshot {
-        EnvironmentSnapshot(statuses: exposomeService.statuses, locationName: locationManager.locationLabel)
+        EnvironmentSnapshot(statuses: exposomeService.statuses, locationName: chatLocationName)
     }
 
     private var liveConditions: RiskConditions { RiskConditions(snapshot: snapshot) }
@@ -37,6 +55,12 @@ struct ExposomeDashboardView: View {
         ZStack(alignment: .bottom) {
             Map(position: $mapPosition) {
                 UserAnnotation()
+                if let home = patientHome, let patient = patientStore.selected {
+                    Marker("\(patient.displayName) · \(patient.town)",
+                           systemImage: "house.fill",
+                           coordinate: home.coordinate)
+                        .tint(.red)
+                }
             }
             .mapStyle(.standard(elevation: .realistic))
             .ignoresSafeArea()
@@ -68,22 +92,27 @@ struct ExposomeDashboardView: View {
         .onAppear {
             locationManager.requestLocation()
             refreshAlerts()
+            moveToActiveLocation()
         }
-        .onChange(of: locationManager.location) { _, newLocation in
-            guard let loc = newLocation else { return }
-            Task { await exposomeService.refresh(location: loc) }
+        .onChange(of: locationManager.location) { _, _ in
+            // GPS only matters when "My info" is selected; practice patients use their home town.
+            guard patientHome == nil else { return }
+            moveToActiveLocation()
+        }
+        .onChange(of: patientStore.selectedID) { _, _ in
+            moveToActiveLocation()
         }
         .onChange(of: currentRisk) { _, _ in refreshAlerts() }
         .sheet(isPresented: $showStats) {
             StatsSheetView(
-                locationLabel: locationManager.locationLabel,
+                locationLabel: activeLabel,
                 statuses: exposomeService.statuses,
                 onRefresh: { Task { await forceRefresh() } }
             )
         }
         .sheet(isPresented: $showChat) {
             AgentChatView(
-                locationLabel: locationManager.locationLabel,
+                locationLabel: chatLocationName,
                 exposomeService: exposomeService,
                 patient: patientStore.selected,
                 risk: currentRisk,
@@ -109,6 +138,24 @@ struct ExposomeDashboardView: View {
                 )
             }
         }
+    }
+
+    /// Loads live air and weather for the active location and centers the map on it.
+    private func moveToActiveLocation() {
+        if let home = patientHome {
+            withAnimation(.easeInOut(duration: 0.6)) {
+                mapPosition = .region(MKCoordinateRegion(
+                    center: home.coordinate,
+                    latitudinalMeters: 9000,
+                    longitudinalMeters: 9000))
+            }
+        } else {
+            withAnimation(.easeInOut(duration: 0.6)) {
+                mapPosition = .userLocation(followsHeading: false, fallback: .automatic)
+            }
+        }
+        guard let loc = activeLocation else { return }
+        Task { await exposomeService.refresh(location: loc) }
     }
 
     private func refreshAlerts() {
@@ -147,10 +194,10 @@ struct ExposomeDashboardView: View {
                     .font(.headline.weight(.black))
                     .foregroundStyle(.primary)
                 HStack(spacing: 4) {
-                    Image(systemName: "location.fill")
+                    Image(systemName: patientHome != nil ? "house.fill" : "location.fill")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
-                    Text(locationManager.locationLabel)
+                    Text(activeLabel)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
@@ -174,7 +221,7 @@ struct ExposomeDashboardView: View {
                     .frame(width: 36, height: 36)
                     .background(.thinMaterial, in: Circle())
             }
-            .disabled(locationManager.location == nil)
+            .disabled(activeLocation == nil)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -234,7 +281,7 @@ struct ExposomeDashboardView: View {
     }
 
     private func forceRefresh() async {
-        guard let loc = locationManager.location else {
+        guard let loc = activeLocation else {
             locationManager.requestLocation()
             return
         }
