@@ -18,14 +18,15 @@ struct AmbientNoiseSource: ExposomeSource {
 
     func fetch(for factor: ExposomeFactor, at location: CLLocation) async throws -> ExposomeReading? {
         guard factor == .ambientNoise else { return nil }
+        // Return nil (Not available) on any failure — this is an estimate, not critical data.
+        return try? await fetchEstimate(at: location)
+    }
 
-        let lat = location.coordinate.latitude
-        let lon = location.coordinate.longitude
-
+    private func fetchEstimate(at location: CLLocation) async throws -> ExposomeReading? {
         let query = """
         [out:json][timeout:15];
         (
-          way["highway"~"motorway|trunk|primary|secondary"](around:500,\(lat),\(lon));
+          way["highway"~"motorway|trunk|primary|secondary"](around:500,\(location.coordinate.latitude),\(location.coordinate.longitude));
         );
         out count;
         """
@@ -38,17 +39,13 @@ struct AmbientNoiseSource: ExposomeSource {
         request.httpBody = formComponents.percentEncodedQuery?.data(using: .utf8)
 
         let (data, response) = try await session.data(for: request)
-        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-            throw NoiseError.httpError((response as? HTTPURLResponse)?.statusCode ?? -1)
-        }
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
 
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let elements = json["elements"] as? [[String: Any]],
               let tags = elements.first?["tags"] as? [String: String],
               let totalStr = tags["total"],
-              let total = Int(totalStr) else {
-            throw NoiseError.unexpectedResponse
-        }
+              let total = Int(totalStr) else { return nil }
 
         let db = estimatedDecibels(roadCount: total)
         return ExposomeReading(
@@ -100,10 +97,13 @@ struct GreenSpaceSource: ExposomeSource {
 
     func fetch(for factor: ExposomeFactor, at location: CLLocation) async throws -> ExposomeReading? {
         guard factor == .greenSpace else { return nil }
+        // Return nil (Not available) on any failure — this is an estimate, not critical data.
+        return try? await fetchEstimate(at: location)
+    }
 
+    private func fetchEstimate(at location: CLLocation) async throws -> ExposomeReading? {
         let lat = location.coordinate.latitude
         let lon = location.coordinate.longitude
-
         let query = """
         [out:json][timeout:15];
         (
@@ -122,17 +122,13 @@ struct GreenSpaceSource: ExposomeSource {
         request.httpBody = formComponents.percentEncodedQuery?.data(using: .utf8)
 
         let (data, response) = try await session.data(for: request)
-        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-            throw GreenSpaceError.httpError((response as? HTTPURLResponse)?.statusCode ?? -1)
-        }
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
 
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let elements = json["elements"] as? [[String: Any]],
               let tags = elements.first?["tags"] as? [String: String],
               let totalStr = tags["total"],
-              let total = Int(totalStr) else {
-            throw GreenSpaceError.unexpectedResponse
-        }
+              let total = Int(totalStr) else { return nil }
 
         let pct = coveragePercent(featureCount: total)
         return ExposomeReading(
