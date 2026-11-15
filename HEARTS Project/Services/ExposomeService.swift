@@ -76,6 +76,25 @@ final class ExposomeService {
         }
     }
 
+    /// Live readings in the shape the HEARTS agent expects (only factors that loaded).
+    var agentEnvironment: [String: Double] {
+        let keys: [(ExposomeFactor, String)] = [
+            (.aqi,         "aqi"),
+            (.pm25,        "pm25"),
+            (.temperature, "temperatureF"),
+            (.humidity,    "humidityPercent"),
+            (.heatIndex,   "heatIndexF"),
+            (.pollen,      "pollen")
+        ]
+        var env: [String: Double] = [:]
+        for (factor, key) in keys {
+            if case .available(let reading) = statuses[factor] {
+                env[key] = reading.numericValue
+            }
+        }
+        return env
+    }
+
     func forceRefresh(location: CLLocation) async {
         lastFetchKey = nil
         await refresh(location: location)
