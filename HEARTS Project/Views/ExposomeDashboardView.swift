@@ -6,6 +6,7 @@ struct ExposomeDashboardView: View {
     @State private var locationManager = LocationManager()
     @State private var exposomeService = ExposomeService()
     @State private var showStats = false
+    @State private var showAgent = false
     @State private var mapPosition: MapCameraPosition = .userLocation(
         followsHeading: false,
         fallback: .automatic
@@ -24,6 +25,8 @@ struct ExposomeDashboardView: View {
                     .padding(.top, 60)
                     .padding(.horizontal, 16)
                 Spacer()
+                askButton
+                    .padding(.bottom, 12)
                 statsButton
                     .padding(.bottom, 48)
             }
@@ -41,6 +44,27 @@ struct ExposomeDashboardView: View {
                 statuses: exposomeService.statuses,
                 onRefresh: { Task { await forceRefresh() } }
             )
+        }
+        .sheet(isPresented: $showAgent) {
+            AgentChatView(environment: exposomeService.agentEnvironment)
+        }
+    }
+
+    private var askButton: some View {
+        Button {
+            showAgent = true
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "bubble.left.and.text.bubble.right.fill")
+                    .font(.body.weight(.bold))
+                Text("Ask HEARTS")
+                    .font(.headline.weight(.bold))
+            }
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 22)
+            .padding(.vertical, 12)
+            .background(.thickMaterial, in: Capsule())
+            .shadow(color: .black.opacity(0.15), radius: 12, y: 4)
         }
     }
 
