@@ -31,7 +31,7 @@ and gets back:
 
 ## Guidelines
 
-The `GUIDELINES` list at the top of `worker.js` is the knowledge base. Right now these are **drafts** from EPA/AirNow, CDC, and AHA that are waiting for Yale approval. Only approved guidelines should be used with real patients.
+The `GUIDELINES` list at the top of `worker.js` is the knowledge base. They come from "HEARTS Guidelines v2" (EPA, CDC, NIH MedlinePlus, and the State of Maine). Each one has an exact quote and link in that sheet so the Yale doctors can approve it.
 
 ## Deploying
 
