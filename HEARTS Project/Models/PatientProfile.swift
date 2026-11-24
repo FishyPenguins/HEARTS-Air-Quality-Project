@@ -1,7 +1,7 @@
 import Foundation
 
-/// Basic patient info sent to the HEARTS agent with each question.
-/// Demo data only for now. Use fake patients until we have a HIPAA-safe setup.
+// Basic patient info we send to the agent with each question.
+// Only fake/demo patients for now until we have a HIPAA-safe setup.
 struct PatientProfile: Codable {
     var condition: String
     var ageRange: String?
