@@ -1,5 +1,6 @@
 import SwiftUI
 
+// One message in the chat (from the patient, the agent, or an error)
 struct ChatMessage: Identifiable {
     enum Role { case user, agent, error }
 
@@ -9,8 +10,9 @@ struct ChatMessage: Identifiable {
     var sources: [AgentSource] = []
 }
 
-/// Chat with the HEARTS RAG agent. Every question is sent with the live
-/// air quality / weather readings so the answer fits today's conditions.
+// The "Ask HEARTS" chat screen.
+// Every question gets sent to our RAG agent along with the live AQI/weather
+// from the dashboard, so the answer is about today's conditions.
 struct AgentChatView: View {
     let environment: [String: Double]
     var patient: PatientProfile = .demo
@@ -22,6 +24,7 @@ struct AgentChatView: View {
 
     private let client = HeartsAgentClient()
 
+    // Buttons shown before the patient types anything
     private let suggestions = [
         "Is it safe to go for a walk today?",
         "What should I do about the air quality?",
@@ -72,6 +75,7 @@ struct AgentChatView: View {
 
     // MARK: - Pieces
 
+    // Bar at the top showing today's numbers
     private var conditionsBar: some View {
         HStack(spacing: 14) {
             if let aqi = environment["aqi"] {
@@ -97,7 +101,7 @@ struct AgentChatView: View {
 
     private var welcome: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Ask a question about today's air or weather. Answers come from approved heart failure guidelines and your area's live conditions.")
+            Text("Ask a question about today's air or weather. Answers come from heart failure guidelines (EPA, CDC, and NIH) and your area's live conditions.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Text("Not medical advice. For chest pain or severe trouble breathing, call 911.")
@@ -142,6 +146,7 @@ struct AgentChatView: View {
 
     // MARK: - Sending
 
+    // Adds the question to the chat, asks the agent, then adds the answer
     private func send(_ text: String) {
         let question = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !question.isEmpty, !isSending else { return }
@@ -166,6 +171,7 @@ struct AgentChatView: View {
     }
 }
 
+// How each message looks. Agent answers also list the guidelines they used.
 private struct MessageBubble: View {
     let message: ChatMessage
 
@@ -182,9 +188,15 @@ private struct MessageBubble: View {
                             .font(.caption2.weight(.bold))
                             .foregroundStyle(.secondary)
                         ForEach(message.sources) { source in
-                            Text("• \(source.title) (\(source.source))")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
+                            // Tap the source to open the government page it came from
+                            if let link = source.link, let url = URL(string: link) {
+                                Link("• \(source.title) (\(source.source))", destination: url)
+                                    .font(.caption2)
+                            } else {
+                                Text("• \(source.title) (\(source.source))")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
