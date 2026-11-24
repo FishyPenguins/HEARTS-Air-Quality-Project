@@ -31,7 +31,7 @@ and gets back:
 
 ## Guidelines
 
-The `GUIDELINES` list at the top of `worker.js` is the knowledge base. They come from "HEARTS Guidelines v2" (EPA, CDC, NIH MedlinePlus, and the State of Maine). Each one has an exact quote and link in that sheet so the Yale doctors can approve it.
+The `GUIDELINES` list at the top of `worker.js` is the knowledge base. They come from our "HEARTS Guidelines" spreadsheet (EPA, CDC, NIH MedlinePlus, and the State of Maine). Each guideline has the link to the page it came from, and the app shows that link under each answer.
 
 ## Deploying
 

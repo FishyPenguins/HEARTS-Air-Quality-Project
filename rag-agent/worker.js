@@ -13,93 +13,123 @@
 
 
 // ===================== GUIDELINES (our knowledge base) =====================
-// From "HEARTS Guidelines v2". Every one comes from a government source (EPA, CDC, NIH).
-// Waiting on final Yale approval.
+// These come straight from our "HEARTS Guidelines" spreadsheet (the one we sent to Yale).
+// "text" is exactly what the sheet says the app should tell the patient.
+// "link" is the government page (EPA, CDC, NIH) the guideline came from.
+// If the sheet changes, update this list and redeploy.
 
 const GUIDELINES = [
   {
     id: "aqi-daily",
     title: "Check the air quality every day",
-    source: "EPA Air Quality Guide for Particle Pollution",
-    text: "People with heart failure count as a sensitive group for air pollution. Check the air quality (AQI) every day, using an app like AirNow. Don't wait to feel sick, because for heart patients the first sign can be serious.",
+    when: "Every day",
+    text: "People with heart failure count as a 'sensitive group' for air pollution. Check the air quality (AQI) every day, using an app like AirNow. Don't wait to feel sick, because for heart patients the first sign can be serious.",
+    source: "EPA Air Quality Guide for Particle Pollution (2015)",
+    link: "https://www.airnow.gov/sites/default/files/2021-03/air-quality-guide_pm_2015_0.pdf",
   },
   {
     id: "aqi-101-150",
     title: "AQI 101-150 (orange)",
-    source: "EPA Air Quality Guide for Particle Pollution",
-    text: "When the AQI is 101 to 150 (orange), the air is unhealthy for sensitive groups. Cut back on long or hard activity outside.",
+    when: "AQI 101-150",
+    text: "The air is unhealthy for sensitive groups today. Cut back on long or hard activity outside.",
+    source: "EPA Air Quality Guide for Particle Pollution (2015)",
+    link: "https://www.airnow.gov/sites/default/files/2021-03/air-quality-guide_pm_2015_0.pdf",
   },
   {
     id: "aqi-151-200",
     title: "AQI 151-200 (red)",
-    source: "EPA Air Quality Guide for Particle Pollution",
-    text: "When the AQI is 151 to 200 (red), the air is unhealthy. Avoid long or hard activity outside. Think about moving it indoors or doing it another day.",
+    when: "AQI 151-200",
+    text: "The air is unhealthy today. Avoid long or hard activity outside. Think about moving it indoors or doing it another day.",
+    source: "EPA Air Quality Guide for Particle Pollution (2015)",
+    link: "https://www.airnow.gov/sites/default/files/2021-03/air-quality-guide_pm_2015_0.pdf",
   },
   {
     id: "aqi-201-300",
     title: "AQI 201-300 (purple)",
-    source: "EPA Air Quality Guide for Particle Pollution",
-    text: "When the AQI is 201 to 300 (purple), the air is very unhealthy. Avoid all physical activity outside. Move it indoors or wait until the air is better.",
+    when: "AQI 201-300",
+    text: "The air is very unhealthy today. Avoid all physical activity outside. Move it indoors or wait until the air is better.",
+    source: "EPA Air Quality Guide for Particle Pollution (2015)",
+    link: "https://www.airnow.gov/sites/default/files/2021-03/air-quality-guide_pm_2015_0.pdf",
   },
   {
     id: "aqi-301-plus",
     title: "AQI 301 or higher (maroon)",
-    source: "EPA Air Quality Guide for Particle Pollution",
-    text: "When the AQI is 301 or higher (maroon), the air is hazardous. Stay indoors and keep activity low. Keep the air inside your home as clean as you can.",
+    when: "AQI 301 or higher",
+    text: "The air is hazardous today. Stay indoors and keep activity low. Keep the air inside your home as clean as you can.",
+    source: "EPA Air Quality Guide for Particle Pollution (2013)",
+    link: "https://portal.ct.gov/-/media/deep/air/aqi/airqualityguidepm2013pdf.pdf",
   },
   {
     id: "aqi-symptoms",
     title: "Symptoms on a bad air day",
-    source: "EPA Air Quality Guide for Particle Pollution",
-    text: "On a bad air day (AQI over 100), a racing or pounding heartbeat, shortness of breath, or unusual tiredness can mean a serious problem. Contact your care team.",
+    when: "AQI over 100 and the patient has symptoms",
+    text: "On a bad air day, a racing or pounding heartbeat, shortness of breath, or unusual tiredness can mean a serious problem. Contact your care team.",
+    source: "EPA Air Quality Guide for Particle Pollution (2015)",
+    link: "https://www.airnow.gov/sites/default/files/2021-03/air-quality-guide_pm_2015_0.pdf",
   },
   {
     id: "heat-daily",
     title: "Check the heat forecast",
-    source: "CDC Heat and Cardiovascular Disease",
+    when: "Warm months; HeatRisk orange or higher",
     text: "During warm months, check the heat forecast every day. Take steps to stay cool when the heat risk is orange or higher.",
+    source: "CDC - Clinical Overview of Heat and Cardiovascular Disease",
+    link: "https://www.cdc.gov/heat-health/hcp/clinical-overview/heat-and-people-with-cardiovascular-disease.html",
   },
   {
     id: "heat-and-air",
     title: "Hot days with bad air",
-    source: "CDC Heat and Cardiovascular Disease",
+    when: "Hot day and AQI over 100",
     text: "Hot days can make the air quality worse too. On hot days, check both the heat forecast and the AQI.",
+    source: "CDC - Clinical Overview of Heat and Cardiovascular Disease",
+    link: "https://www.cdc.gov/heat-health/hcp/clinical-overview/heat-and-people-with-cardiovascular-disease.html",
   },
   {
     id: "heat-cooling",
     title: "How to stay cool",
-    source: "CDC Extreme Heat Prevention Guide",
+    when: "Hot days",
     text: "Spend time in air conditioning. Even a few hours a day helps. If you don't have AC at home, go to a cool public place like a library or mall. Fans don't prevent heat illness once it's in the high 90s.",
+    source: "CDC - Extreme Heat: A Prevention Guide",
+    link: "http://emergency.cdc.gov/disasters/extremeheat/heat_guide.asp",
   },
   {
     id: "heat-meds",
     title: "Heart medicines on hot days",
-    source: "CDC Heat and Medications Guidance",
+    when: "Hot days; patient takes water pills or blood pressure medicine",
     text: "Some heart medicines, like water pills, can make heat harder on your body. Don't stop or change any medicine on your own. Ask your care team for a plan for hot days.",
+    source: "CDC - Heat and Medications: Guidance for Clinicians",
+    link: "https://www.cdc.gov/heat-health/hcp/clinical-guidance/heat-and-medications-guidance-for-clinicians.html",
   },
   {
     id: "cold-weather",
     title: "Cold weather",
-    source: "Maine Emergency Management Agency",
+    when: "Cold days",
     text: "Cold weather puts extra strain on the heart. Avoid hard work in the cold, like shoveling snow, unless your doctor says it's OK.",
+    source: "Maine Emergency Management Agency - Cold weather is hard on your heart",
+    link: "https://maine.gov/mema/tips/cold-weather-hard-your-heart",
   },
   {
     id: "warning-signs",
     title: "Heart failure warning signs",
-    source: "NIH MedlinePlus - Heart failure home monitoring",
+    when: "Any time",
     text: "Call your care team if you feel tired or weak, are short of breath when active or at rest, get short of breath lying down, are wheezing, have a cough that won't go away, have swelling in your feet, ankles, or legs, or have gained or lost weight.",
+    source: "NIH MedlinePlus - Heart failure: home monitoring",
+    link: "https://medlineplus.gov/ency/patientinstructions/000113.htm",
   },
   {
     id: "weight-gain",
     title: "Daily weight check",
-    source: "NIH MedlinePlus - Heart failure home monitoring",
+    when: "Daily weigh-in",
     text: "Weigh yourself every morning on the same scale, before you eat and after you use the bathroom. Call your care team if your weight goes up more than 2 to 3 pounds in a day or 5 pounds in a week.",
+    source: "NIH MedlinePlus - Heart failure: home monitoring",
+    link: "https://medlineplus.gov/ency/patientinstructions/000113.htm",
   },
   {
     id: "call-911",
     title: "When to call 911",
-    source: "NIH MedlinePlus - Heart failure",
+    when: "Any time",
     text: "Call 911 or go to the emergency room if you faint, have a fast and irregular heartbeat (especially with other symptoms), or have severe crushing chest pain.",
+    source: "NIH MedlinePlus - Heart failure",
+    link: "https://medlineplus.gov/ency/article/000158.htm",
   },
 ];
 
@@ -203,7 +233,7 @@ let guidelineEmbeddings = null; // saved so we only make them once
 async function findGuidelines(env, question, environment) {
   // Make embeddings for every guideline (only the first time)
   if (guidelineEmbeddings == null) {
-    guidelineEmbeddings = await getEmbeddings(env, GUIDELINES.map((g) => g.title + ". " + g.text));
+    guidelineEmbeddings = await getEmbeddings(env, GUIDELINES.map((g) => g.title + ". " + g.when + ". " + g.text));
   }
 
   // Make an embedding for the question + today's conditions
@@ -298,6 +328,7 @@ export default {
           id: m.guideline.id,
           title: m.guideline.title,
           source: m.guideline.source,
+          link: m.guideline.link,
           score: Math.round(m.score * 100) / 100,
         })),
       }, { headers: HEADERS });
