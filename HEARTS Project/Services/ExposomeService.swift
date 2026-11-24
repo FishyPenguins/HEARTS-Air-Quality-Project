@@ -76,7 +76,7 @@ final class ExposomeService {
         }
     }
 
-    /// Live readings in the shape the HEARTS agent expects (only factors that loaded).
+    // Today's readings in the format our RAG agent wants (skips anything that didn't load)
     var agentEnvironment: [String: Double] {
         let keys: [(ExposomeFactor, String)] = [
             (.aqi,         "aqi"),
